@@ -14,6 +14,12 @@ export const ProfessionalTemplate = ({ resumeData }: ProfessionalTemplateProps) 
   };
 
   const skillsArray = skills.split(',').map(skill => skill.trim()).filter(Boolean);
+  
+  // Parse projects into separate entries
+  const projectsArray = projects
+    .split(/\n\s*\n+/)
+    .map(project => project.trim())
+    .filter(Boolean);
 
   return (
     <div className="resume-template professional" id="resume-preview">
@@ -143,14 +149,21 @@ export const ProfessionalTemplate = ({ resumeData }: ProfessionalTemplateProps) 
       )}
 
       {/* Projects */}
-      {projects.trim() && (
+      {projectsArray.length > 0 && (
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-6 uppercase tracking-wide">
             Key Projects
           </h2>
           <div className="bg-muted/30 p-6 rounded-lg border-l-4 border-warning">
-            <div className="text-gray-700 leading-relaxed whitespace-pre-line text-base">
-              {projects}
+            <div className="space-y-4">
+              {projectsArray.map((project, index) => (
+                <div key={index} className="text-gray-700 leading-relaxed text-base">
+                  <div className="flex items-start">
+                    <span className="text-warning font-semibold mr-2 mt-1">•</span>
+                    <span>{project}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

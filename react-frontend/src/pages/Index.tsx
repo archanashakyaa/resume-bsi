@@ -40,7 +40,7 @@ export interface ResumeData {
 const Index = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<'builder' | 'multistep' | 'success'>('builder');
-  const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'professional'>('modern');
+  const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'professional' | 'minimal' | 'elegant'>('modern');
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       fullName: '',

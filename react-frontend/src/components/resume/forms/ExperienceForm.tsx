@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Sparkles, Briefcase } from "lucide-react";
 import type { ResumeData } from "@/pages/Index";
+import { MonthPicker } from "@/components/resume/MonthPicker";
 
 interface ExperienceFormProps {
   data: ResumeData['experience'];
@@ -126,24 +127,19 @@ export const ExperienceForm = ({ data, onChange }: ExperienceFormProps) => {
                   <Label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                     Start Date
                   </Label>
-                  <Input
-                    type="month"
+                  <MonthPicker
                     value={exp.startDate}
-                    onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
-                    className="border-2 focus:border-primary transition-colors"
+                    onChange={(val) => updateExperience(exp.id, 'startDate', val)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                     End Date
                   </Label>
-                  <Input
-                    type="month"
+                  <MonthPicker
                     value={exp.endDate}
-                    onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                    onChange={(val) => updateExperience(exp.id, 'endDate', val)}
                     disabled={exp.isCurrentJob}
-                    placeholder={exp.isCurrentJob ? "Present" : ""}
-                    className="border-2 focus:border-primary transition-colors"
                   />
                 </div>
               </div>
