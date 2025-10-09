@@ -12,6 +12,7 @@ import EducationPage from "@/pages/multistep/EducationPage";
 import SkillsPage from "@/pages/multistep/SkillsPage";
 import ProjectsPage from "@/pages/multistep/ProjectsPage";
 import ReviewPage from "@/pages/multistep/ReviewPage";
+import PrintPage from "@/pages/Print";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/multistep/skills" element={<SkillsPage />} />
             <Route path="/multistep/projects" element={<ProjectsPage />} />
             <Route path="/multistep/review" element={<ReviewPage />} />
+            <Route path="/print" element={<PrintPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

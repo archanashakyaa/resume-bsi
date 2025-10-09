@@ -10,7 +10,7 @@ import { ResumePreview } from "@/components/resume/ResumePreview";
 const ReviewPage = () => {
   const navigate = useNavigate();
   const { resumeData, progress, setResumeData } = useResume();
-  const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'professional'>("modern");
+  const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'professional' | 'minimal' | 'elegant'>("modern");
 
   const updatePI = (key: keyof typeof resumeData.personalInfo, value: string) => {
     setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, [key]: value } });

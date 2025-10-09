@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback, memo } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,14 @@ interface ProjectsFormProps {
   onChange: (data: string) => void;
 }
 
-export const ProjectsForm = ({ data, onChange }: ProjectsFormProps) => {
-  const [projects, setProjects] = useState<string[]>([]);
+interface ProjectItem {
+  id: string;
+  content: string;
+}
+
+const ProjectsFormComponent = ({ data, onChange }: ProjectsFormProps) => {
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Split incoming data into individual projects by blank line separator
   useEffect(() => {
@@ -19,31 +25,46 @@ export const ProjectsForm = ({ data, onChange }: ProjectsFormProps) => {
       .split(/\n\s*\n+/)
       .map(p => p.trim())
       .filter(Boolean);
-    setProjects(parts.length > 0 ? parts : [""]);
+    const newProjects = parts.length > 0 ? parts : [""];
+    
+    // Convert to ProjectItem format with stable IDs
+    const newProjectItems = newProjects.map((content, index) => ({
+      id: `project-${Date.now()}-${index}`,
+      content
+    }));
+    
+    // Only update if the content actually changed to prevent unnecessary re-renders
+    const currentContent = projects.map(p => p.content);
+    if (JSON.stringify(newProjects) !== JSON.stringify(currentContent)) {
+      setProjects(newProjectItems);
+    }
+    setIsInitialized(true);
   }, [data]);
 
-  const serialized = useMemo(() => projects.map(p => p.trim()).filter(Boolean).join("\n\n"), [projects]);
+  const serialized = useMemo(() => {
+    return projects.map(p => p.content.trim()).filter(Boolean).join("\n\n");
+  }, [projects]);
 
+  // Only call onChange when we're initialized and the serialized data is different
   useEffect(() => {
-    if (serialized !== (data || "").trim()) {
+    if (isInitialized && serialized !== (data || "").trim()) {
       onChange(serialized);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serialized]);
+  }, [serialized, isInitialized, data, onChange]);
 
-  const addProject = () => {
-    setProjects(prev => [...prev, ""]);
-  };
+  const addProject = useCallback(() => {
+    setProjects(prev => [...prev, { id: `project-${Date.now()}-${prev.length}`, content: "" }]);
+  }, []);
 
-  const removeProject = (idx: number) => {
-    setProjects(prev => prev.filter((_, i) => i !== idx));
-  };
+  const removeProject = useCallback((id: string) => {
+    setProjects(prev => prev.filter(p => p.id !== id));
+  }, []);
 
-  const updateProject = (idx: number, value: string) => {
-    setProjects(prev => prev.map((p, i) => (i === idx ? value : p)));
-  };
+  const updateProject = useCallback((id: string, value: string) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, content: value } : p));
+  }, []);
 
-  const enhanceProjects = async () => {
+  const enhanceProjects = useCallback(async () => {
     try {
       const res = await fetch('/enhance', {
         method: 'POST',
@@ -57,10 +78,18 @@ export const ProjectsForm = ({ data, onChange }: ProjectsFormProps) => {
           .split(/\n\s*\n+/)
           .map((p: string) => p.trim())
           .filter(Boolean);
-        setProjects(parts.length > 0 ? parts : [""]);
+        const enhancedProjects = parts.length > 0 ? parts : [""];
+        
+        // Convert to ProjectItem format with new IDs
+        const newProjectItems = enhancedProjects.map((content, index) => ({
+          id: `project-enhanced-${Date.now()}-${index}`,
+          content
+        }));
+        
+        setProjects(newProjectItems);
       }
     } catch {}
-  };
+  }, [serialized]);
 
   return (
     <Card className="p-6 mb-6 bg-white rounded-2xl shadow-card border-t-4 border-t-success">
@@ -83,19 +112,19 @@ export const ProjectsForm = ({ data, onChange }: ProjectsFormProps) => {
         </div>
 
         {projects.map((proj, idx) => (
-          <div key={idx} className="rounded-lg border border-muted/40 p-3 bg-muted/30">
+          <div key={proj.id} className="rounded-lg border border-muted/40 p-3 bg-muted/30 transition-all duration-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-muted-foreground">Project {idx + 1}</span>
               {projects.length > 1 && (
-                <Button onClick={() => removeProject(idx)} variant="ghost" size="icon" aria-label="Remove project">
+                <Button onClick={() => removeProject(proj.id)} variant="ghost" size="icon" aria-label="Remove project">
                   <Trash2 className="w-4 h-4 text-muted-foreground" />
                 </Button>
               )}
             </div>
             <Textarea
               placeholder={"Project name, tech stack, your role, impact/results."}
-              value={proj}
-              onChange={(e) => updateProject(idx, e.target.value)}
+              value={proj.content}
+              onChange={(e) => updateProject(proj.id, e.target.value)}
               className="border-2 focus:border-primary transition-colors bg-white min-h-[120px] resize-vertical"
             />
           </div>
@@ -119,3 +148,5 @@ export const ProjectsForm = ({ data, onChange }: ProjectsFormProps) => {
     </Card>
   );
 };
+
+export const ProjectsForm = memo(ProjectsFormComponent);

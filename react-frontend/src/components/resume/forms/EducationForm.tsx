@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus, Trash2, GraduationCap, Sparkles } from "lucide-react";
 import type { ResumeData } from "@/pages/Index";
+import { MonthPicker } from "@/components/resume/MonthPicker";
 
 interface EducationFormProps {
   data: ResumeData['education'];
@@ -101,11 +102,9 @@ export const EducationForm = ({ data, onChange }: EducationFormProps) => {
                   <Label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                     Graduation Date
                   </Label>
-                  <Input
-                    type="month"
+                  <MonthPicker
                     value={edu.graduationDate}
-                    onChange={(e) => updateEducation(edu.id, 'graduationDate', e.target.value)}
-                    className="border-2 focus:border-primary transition-colors"
+                    onChange={(val) => updateEducation(edu.id, 'graduationDate', val)}
                   />
                 </div>
                 <div className="space-y-2">
